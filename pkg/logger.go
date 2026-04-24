@@ -21,7 +21,7 @@ func NewLogger(cfg *config.AppConfig) (*zap.Logger, error) {
 		}
 		return logger, nil
 	case "Prod":
-		logger, err := zap.NewDevelopment()
+		logger, err := zap.NewProduction()
 		if err != nil {
 			return nil, err
 		}

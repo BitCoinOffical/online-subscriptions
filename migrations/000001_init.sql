@@ -1,3 +1,4 @@
+-- +goose Up
 CREATE TABLE IF NOT EXISTS subscriptions (
     id BIGSERIAL PRIMARY KEY,
     service_name VARCHAR(255) NOT NULL,
@@ -9,3 +10,6 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- +goose Down
+DROP TABLE IF EXISTS subscriptions;

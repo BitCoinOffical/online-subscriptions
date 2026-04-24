@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     end_date DATE NOT NULL,
 
 	create_at TIMESTAMP DEFAULT NOW(),
-	update_at TIMESTAMP DEFAULT NOW(),
+	update_at TIMESTAMP DEFAULT NOW()
 );
 
 -- +goose Down

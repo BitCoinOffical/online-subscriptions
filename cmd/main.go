@@ -17,6 +17,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
@@ -25,7 +26,9 @@ const (
 )
 
 func main() {
-
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("error loading .env file: ", err)
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -38,6 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	logger.Debug("data in config", zap.Any("config:", cfg))
 
 	pool, err := postgres.NewPool(ctx, &cfg.Postgres)
 	if err != nil {

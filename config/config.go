@@ -19,15 +19,15 @@ type Config struct {
 }
 
 type PostgresConfig struct {
-	DBUser     string `env:"DB_USER"`
-	DBPassword string `env:"DB_PASSWORD"`
-	DBHost     string `env:"DB_HOST"`
-	DBPort     string `env:"DB_PORT"`
-	DBName     string `env:"DB_NAME"`
+	DBUser     string `env:"DB_USER,required"`
+	DBPassword string `env:"DB_PASSWORD,required"`
+	DBHost     string `env:"DB_HOST,required"`
+	DBPort     string `env:"DB_PORT,required"`
+	DBName     string `env:"DB_NAME,required"`
 }
 
 type AppConfig struct {
-	DebugLevel string `env:"DEBUG_LEVEL"`
+	DebugLevel string `env:"DEBUG_LEVEL,required"`
 }
 
 func NewLoadConfig() (*Config, error) {

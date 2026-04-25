@@ -7,7 +7,9 @@ import (
 
 func ParseMonthDate(s string) (time.Time, error) {
 	layouts := []string{"01-2006", "02-01-2006"}
-
+	if s == "" {
+		return time.Time{}, nil
+	}
 	for _, l := range layouts {
 		if t, err := time.Parse(l, s); err == nil {
 			return t, nil

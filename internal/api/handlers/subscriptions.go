@@ -98,3 +98,11 @@ func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
 
 	c.JSON(http.StatusOK, subs)
 }
+
+func (h *SubscriptionHandler) GetSubscriptionsFilter(c *gin.Context) {
+	user_id := c.Query("user_id")
+	service_name := c.Query("service_name")
+	from := c.Query("from")
+	to := c.Query("to")
+	h.service.GetSubscriptionsFilter(c.Request.Context(), from, to, user_id, service_name)
+}

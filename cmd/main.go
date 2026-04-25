@@ -12,10 +12,7 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/internal/adapters/secondary/postgres"
 	"github.com/BitCoinOffical/online-subscriptions/internal/api"
 	"github.com/BitCoinOffical/online-subscriptions/internal/api/handlers"
-	"github.com/BitCoinOffical/online-subscriptions/internal/rules"
 	"github.com/BitCoinOffical/online-subscriptions/pkg"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
@@ -54,12 +51,6 @@ func main() {
 		logger.Fatal("migrations failed", zap.Error(err))
 	}
 	logger.Info("database migrations applied successfully")
-
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		if err := v.RegisterValidation("price", rules.ValidatePrice); err != nil {
-			logger.Error("failed to register price validator", zap.Error(err))
-		}
-	}
 
 	srvs := handlers.NewServices(pool)
 	handlrs := handlers.NewHandlers(srvs, logger)

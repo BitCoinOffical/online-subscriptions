@@ -71,3 +71,6 @@ func (s *SubscriptionService) GetSubscriptions(ctx context.Context) ([]models.Su
 	}
 	return subs, nil
 }
+func (s *SubscriptionService) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) {
+	s.repo.GetSubscriptionsFilter(ctx, from, to, user_id, service_name)
+}

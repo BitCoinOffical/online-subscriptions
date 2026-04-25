@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/models"
+	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -28,9 +29,9 @@ func (r *SubscriptionRepo) CreateSubscription(ctx context.Context, sub *models.S
 }
 
 func (r *SubscriptionRepo) GetSubscriptionsById(ctx context.Context, id int) (*models.Subscription, error) {
-	var model models.Subscription
-	query := `SELECT id, service_name, price, user_id, start_date, end_date, created_at, updated_at FROM subscriptions WHERE id = $1`
-	err := r.pool.QueryRow(ctx, query, id).Scan(&model.ID, &model.ServiceName, &model.Price, &model.UserID, &model.StartDate, &model.EndDate)
+	var sub models.Subscription
+	query := `SELECT * FROM subscriptions WHERE id = $1`
+	err := r.pool.QueryRow(ctx, query, id).Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate, &sub.Created_at, &sub.Updated_at)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("not found subscription by id: %w", err)
@@ -38,7 +39,7 @@ func (r *SubscriptionRepo) GetSubscriptionsById(ctx context.Context, id int) (*m
 		return nil, fmt.Errorf("r.pool.QueryRow: %w", err)
 	}
 
-	return &model, nil
+	return &sub, nil
 }
 
 func (r *SubscriptionRepo) UpdateSubscriptions(ctx context.Context, sub *models.Subscription) error {
@@ -62,7 +63,7 @@ func (r *SubscriptionRepo) DeleteSubscriptions(ctx context.Context, id int) erro
 }
 
 func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subscription, error) {
-	query := `SELECT id, service_name, price, user_id, start_date, end_date FROM subscriptions ORDER BY id DESC`
+	query := `SELECT * FROM subscriptions ORDER BY id DESC`
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("r.pool.Query: %w", err)
@@ -73,7 +74,7 @@ func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subsc
 
 	for rows.Next() {
 		var sub models.Subscription
-		if err := rows.Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate); err != nil {
+		if err := rows.Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate, &sub.Created_at, &sub.Updated_at); err != nil {
 			return nil, fmt.Errorf("rows.Scan: %w", err)
 		}
 		subs = append(subs, sub)
@@ -84,4 +85,31 @@ func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subsc
 	}
 
 	return subs, nil
+}
+func (r *SubscriptionRepo) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error) {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+	q := psql.Select("SUM(price)").From("subscriptions")
+	if from != "" {
+		q.Where(squirrel.GtOrEq{"start_date": from})
+	}
+	if to != "" {
+		q.Where(squirrel.LtOrEq{"end_date": from})
+	}
+	if user_id != "" {
+		q.Where(squirrel.Eq{"user_id": user_id})
+	}
+	if service_name != "" {
+		q.Where(squirrel.Eq{"service_name": service_name})
+	}
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return 0, fmt.Errorf("q.ToSql():%w", err)
+	}
+	var total int
+	err = r.pool.QueryRow(ctx, query, args...).Scan(&total)
+	if err != nil {
+		return 0, fmt.Errorf("r.pool.QueryRow: %w", err)
+	}
+	return total, nil
 }

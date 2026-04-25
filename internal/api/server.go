@@ -33,12 +33,13 @@ func (s *Server) Run() error {
 
 	subs := s.engine.Group("/api/v1")
 	{
-		subs.POST("/subscriptions", s.h.Subs.CreateSubscription)        //Create subscription
-		subs.GET("/subscriptions/:id", s.h.Subs.GetSubscriptionsById)   //Get subscription
-		subs.GET("/subscriptions/", s.h.Subs.GetSubscriptions)          //Get subscriptions
-		subs.GET("/subscriptions", s.h.Subs.GetSubscriptionsFilter)     //Get subscriptions with filter
-		subs.PATCH("/subscriptions/:id", s.h.Subs.UpdateSubscriptions)  //Update subscription
-		subs.DELETE("/subscriptions/:id", s.h.Subs.DeleteSubscriptions) //Delete subscription
+		subs.POST("/subscriptions", s.h.Subs.CreateSubscription)             //Create subscription
+		subs.GET("/subscriptions/:id", s.h.Subs.GetSubscriptionsById)        //Get subscription
+		subs.GET("/subscriptions/", s.h.Subs.GetSubscriptions)               //Get all subscriptions
+		subs.GET("/subscriptions", s.h.Subs.GetSubscriptionsFilter)          //Get subscriptions with filter
+		subs.PUT("/subscriptions/:id", s.h.Subs.FullUpdateSubscriptionsById) //Full update subscription
+		subs.PATCH("/subscriptions/:id", s.h.Subs.UpdateSubscriptionsById)   //Update subscription
+		subs.DELETE("/subscriptions/:id", s.h.Subs.DeleteSubscriptions)      //Delete subscription
 	}
 
 	return s.srv.ListenAndServe()

@@ -7,6 +7,7 @@ import (
 
 	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/models"
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,7 +43,37 @@ func (r *SubscriptionRepo) GetSubscriptionsById(ctx context.Context, id int) (*m
 	return &sub, nil
 }
 
-func (r *SubscriptionRepo) UpdateSubscriptions(ctx context.Context, sub *models.Subscription) error {
+func (r *SubscriptionRepo) UpdateSubscriptionsById(ctx context.Context, sub *models.PatchSubscription) error {
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+	q := psql.Update("subscriptions")
+	if sub.ServiceName != "" {
+		q = q.Set("service_name", sub.ServiceName)
+	}
+	if sub.Price != nil {
+		q = q.Set("price", sub.Price)
+	}
+	if sub.UserID != uuid.Nil {
+		q = q.Set("user_id", sub.UserID)
+	}
+	if !sub.StartDate.IsZero() {
+		q = q.Set("start_date", sub.StartDate)
+	}
+	if !sub.EndDate.IsZero() {
+		q = q.Set("end_date", sub.EndDate)
+	}
+
+	sql, args, err := q.Where(squirrel.Eq{"id": sub.ID}).ToSql()
+	if err != nil {
+		return fmt.Errorf("q.ToSql():%w", err)
+	}
+	_, err = r.pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("r.pool.Exec: %w", err)
+	}
+	return nil
+}
+
+func (r *SubscriptionRepo) FullUpdateSubscriptionsById(ctx context.Context, sub *models.Subscription) error {
 	query := `UPDATE subscriptions SET service_name = $1, price = $2, user_id = $3, start_date = $4, end_date = $5, updated_at = NOW() WHERE id = $6`
 	_, err := r.pool.Exec(ctx, query, sub.ServiceName, sub.Price, sub.UserID, sub.StartDate, sub.EndDate, sub.ID)
 

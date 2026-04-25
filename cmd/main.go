@@ -16,7 +16,6 @@ import (
 	zaplogger "github.com/BitCoinOffical/online-subscriptions/pkg/logger"
 
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
@@ -24,10 +23,14 @@ const (
 	migrationsDir = "./migrations"
 )
 
+// @title Subscriptions API
+// @version 1.0
+// @description API server for subscriptions
+
+// @host localhost:8080
+// @BasePath /api/v1
+
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("error loading .env file: ", err)
-	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -66,13 +69,13 @@ func main() {
 	<-ctx.Done()
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	// if err := migrations.RollbackLast(shutdownCtx, db, migrationsDir); err != nil {
-	// 	log.Fatalf("goose down failed: %v", err)
-	// }
-	// logger.Info("rollback last migrations")
+	if err := migrations.RollbackLast(shutdownCtx, db, migrationsDir); err != nil {
+		log.Fatalf("goose down failed: %v", err)
+	}
+	logger.Info("rollback last migrations")
 
-	// postgres.ClosePool(pool)
-	// logger.Info("pool closed")
+	postgres.ClosePool(pool)
+	logger.Info("pool closed")
 
 	if err := serv.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("shutdown error: %v", err)

@@ -51,7 +51,33 @@ func (s *SubscriptionService) GetSubscriptionsById(ctx context.Context, id int) 
 	return sub, nil
 }
 
-func (s *SubscriptionService) UpdateSubscriptions(ctx context.Context, dto *dto.SubscriptionDTO, id int) error {
+func (s *SubscriptionService) UpdateSubscriptionsById(ctx context.Context, dto *dto.PatchSubscriptionDTO, id int) error {
+	startT, err := date.ParseMonthDate(dto.StartDate)
+	if err != nil {
+		return err
+	}
+
+	endT, err := date.ParseMonthDate(dto.EndDate)
+	if err != nil {
+		return err
+	}
+
+	sub := models.PatchSubscription{
+		ID:          id,
+		ServiceName: dto.ServiceName,
+		Price:       dto.Price,
+		UserID:      dto.UserID,
+		StartDate:   startT,
+		EndDate:     endT,
+	}
+	err = s.repo.UpdateSubscriptionsById(ctx, &sub)
+	if err != nil {
+		return fmt.Errorf("s.repo.UpdateSubscriptions: %w", err)
+	}
+	return nil
+}
+
+func (s *SubscriptionService) FullUpdateSubscriptionsById(ctx context.Context, dto *dto.SubscriptionDTO, id int) error {
 	startT, err := date.ParseMonthDate(dto.StartDate)
 	if err != nil {
 		return err
@@ -70,7 +96,7 @@ func (s *SubscriptionService) UpdateSubscriptions(ctx context.Context, dto *dto.
 		StartDate:   startT,
 		EndDate:     endT,
 	}
-	err = s.repo.UpdateSubscriptions(ctx, &sub)
+	err = s.repo.FullUpdateSubscriptionsById(ctx, &sub)
 	if err != nil {
 		return fmt.Errorf("s.repo.UpdateSubscriptions: %w", err)
 	}

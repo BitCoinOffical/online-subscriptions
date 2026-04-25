@@ -13,9 +13,9 @@ type SubscriptionDTO struct {
 }
 
 type PatchSubscriptionDTO struct {
-	ServiceName string    `json:"service_name" binding:"required"`
+	ServiceName string    `json:"service_name" binding:"omitempty"`
 	Price       *int      `json:"price" binding:"omitempty,gte=0"`
-	UserID      uuid.UUID `json:"user_id" binding:"required"`
-	StartDate   string    `json:"start_date" binding:"required"`
-	EndDate     string    `json:"end_date" binding:"required"`
+	UserID      uuid.UUID `json:"user_id" binding:"omitempty"`
+	StartDate   string    `json:"start_date" binding:"omitempty"`
+	EndDate     string    `json:"end_date" binding:"omitempty"`
 }

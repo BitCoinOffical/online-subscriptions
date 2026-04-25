@@ -27,8 +27,8 @@ func NewSubscriptionHandler(service *services.SubscriptionService, logger *zap.L
 // @Produce json
 // @Param request body dto.SubscriptionDTO true "Subscription data"
 // @Success 201 {string} string "Created"
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions [post]
 func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 	var dto dto.SubscriptionDTO
@@ -52,9 +52,9 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 // @Param id path int true "Subscription ID"
 // @Produce json
 // @Success 200 {object} models.Subscription
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/{id} [get]
 func (h *SubscriptionHandler) GetSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -82,9 +82,9 @@ func (h *SubscriptionHandler) GetSubscriptionsById(c *gin.Context) {
 // @Param id path int true "Subscription ID"
 // @Param request body dto.SubscriptionDTO true "Fields to update"
 // @Success 200 {string} string "Updated"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/{id} [patch]
 func (h *SubscriptionHandler) UpdateSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -117,9 +117,9 @@ func (h *SubscriptionHandler) UpdateSubscriptionsById(c *gin.Context) {
 // @Param id path int true "Subscription ID"
 // @Param request body dto.SubscriptionDTO true "Updated subscription data"
 // @Success 200 {string} string "Updated"
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/{id} [put]
 func (h *SubscriptionHandler) FullUpdateSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -150,9 +150,9 @@ func (h *SubscriptionHandler) FullUpdateSubscriptionsById(c *gin.Context) {
 // @Description Delete subscription by ID
 // @Param id path int true "Subscription ID"
 // @Success 204
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/{id} [delete]
 func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -175,7 +175,7 @@ func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 // @Description Get all subscriptions
 // @Produce json
 // @Success 200 {array} models.Subscription
-// @Failure 500 {object} ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/ [get]
 func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
 	subs, err := h.service.GetSubscriptions(c.Request.Context())
@@ -193,12 +193,12 @@ func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
 // @Description Calculating the total cost of subscriptions with filtering
 // @Param user_id query string false "User UUID"
 // @Param service_name query string false "Subscription service name"
-// @Param from query string true "Start period (MM-YYYY) or (DD-MM-YYYY)"
-// @Param to query string true "End period (MM-YYYY) or (DD-MM-YYYY)"
+// @Param from query string false "Start period (MM-YYYY) or (DD-MM-YYYY)"
+// @Param to query string false "End period (MM-YYYY) or (DD-MM-YYYY)"
 // @Produce json
 // @Success 200 {integer} integer
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions [get]
 func (h *SubscriptionHandler) GetSubscriptionsFilter(c *gin.Context) {
 	user_id := c.Query("user_id")

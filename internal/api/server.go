@@ -4,8 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	_ "github.com/BitCoinOffical/online-subscriptions/docs"
 	"github.com/BitCoinOffical/online-subscriptions/internal/api/handlers"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -30,6 +33,7 @@ func (s *Server) Run() error {
 	s.engine.GET("/", func(ctx *gin.Context) {
 		ctx.Redirect(http.StatusMovedPermanently, "/api/v1")
 	})
+	s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	subs := s.engine.Group("/api/v1")
 	{

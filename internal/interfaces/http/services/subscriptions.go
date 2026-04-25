@@ -52,14 +52,15 @@ func (s *SubscriptionService) GetSubscriptionsById(ctx context.Context, id int) 
 }
 
 func (s *SubscriptionService) UpdateSubscriptionsById(ctx context.Context, dto *dto.PatchSubscriptionDTO, id int) error {
+
 	startT, err := date.ParseMonthDate(dto.StartDate)
 	if err != nil {
-		return err
+		return fmt.Errorf("date.ParseMonthDate: %w", err)
 	}
 
 	endT, err := date.ParseMonthDate(dto.EndDate)
 	if err != nil {
-		return err
+		return fmt.Errorf("date.ParseMonthDate: %w", err)
 	}
 
 	sub := models.PatchSubscription{

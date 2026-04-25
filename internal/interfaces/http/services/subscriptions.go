@@ -71,6 +71,10 @@ func (s *SubscriptionService) GetSubscriptions(ctx context.Context) ([]models.Su
 	}
 	return subs, nil
 }
-func (s *SubscriptionService) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) {
-	s.repo.GetSubscriptionsFilter(ctx, from, to, user_id, service_name)
+func (s *SubscriptionService) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error) {
+	total, err := s.repo.GetSubscriptionsFilter(ctx, from, to, user_id, service_name)
+	if err != nil {
+		return 0, fmt.Errorf("s.repo.GetSubscriptionsFilter: %w", err)
+	}
+	return total, nil
 }

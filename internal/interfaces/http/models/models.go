@@ -9,7 +9,7 @@ import (
 type Subscription struct {
 	ID          int
 	ServiceName string
-	Price       float64
+	Price       int
 	UserID      uuid.UUID
 	StartDate   time.Time
 	EndDate     time.Time

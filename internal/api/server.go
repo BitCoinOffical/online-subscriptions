@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/BitCoinOffical/online-subscriptions/internal/api/handlers"
@@ -10,10 +11,19 @@ import (
 type Server struct {
 	engine *gin.Engine
 	h      *handlers.Handlers
+	srv    *http.Server
 }
 
-func NewServer(h *handlers.Handlers) *Server {
-	return &Server{h: h, engine: gin.New()}
+func NewServer(h *handlers.Handlers, port string) *Server {
+	engine := gin.New()
+	return &Server{
+		h:      h,
+		engine: engine,
+		srv: &http.Server{
+			Addr:    ":8080",
+			Handler: engine,
+		},
+	}
 }
 
 func (s *Server) Run() error {
@@ -25,10 +35,14 @@ func (s *Server) Run() error {
 	{
 		subs.POST("/subscriptions", s.h.Subs.CreateSubscription)        //Create subscription
 		subs.GET("/subscriptions/:id", s.h.Subs.GetSubscriptionsById)   //Get subscription
-		subs.GET("/subscriptions", s.h.Subs.GetSubscriptions)           //Get subscriptions
+		subs.GET("/subscriptions/", s.h.Subs.GetSubscriptions)          //Get subscriptions
+		subs.GET("/subscriptions", s.h.Subs.GetSubscriptionsFilter)     //Get subscriptions with filter
 		subs.PATCH("/subscriptions/:id", s.h.Subs.UpdateSubscriptions)  //Update subscription
 		subs.DELETE("/subscriptions/:id", s.h.Subs.DeleteSubscriptions) //Delete subscription
 	}
 
-	return s.engine.Run()
+	return s.srv.ListenAndServe()
+}
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.srv.Shutdown(ctx)
 }

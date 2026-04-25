@@ -27,6 +27,7 @@ type PostgresConfig struct {
 }
 
 type AppConfig struct {
+	Port       string `env:"PORT,required"`
 	DebugLevel string `env:"DEBUG_LEVEL,required"`
 }
 

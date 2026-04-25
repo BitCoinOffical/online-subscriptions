@@ -3,13 +3,19 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/BitCoinOffical/online-subscriptions/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewPool(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
+const (
+	timeout = 5
+)
 
+func NewPool(cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
+	defer cancel()
 	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		cfg.DBUser,
 		cfg.DBPassword,

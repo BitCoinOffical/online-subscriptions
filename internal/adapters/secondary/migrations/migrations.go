@@ -1,8 +1,8 @@
 package migrations
 
 import (
+	"context"
 	"database/sql"
-	"log"
 
 	"github.com/pressly/goose/v3"
 )
@@ -18,8 +18,9 @@ func RunMigrations(db *sql.DB, migrationsDir string) error {
 	return nil
 }
 
-func RollbackLast(db *sql.DB, migrationsDir string) {
-	if err := goose.Down(db, migrationsDir); err != nil {
-		log.Fatalf("goose down failed: %v", err)
+func RollbackLast(ctx context.Context, db *sql.DB, migrationsDir string) error {
+	if err := goose.DownContext(ctx, db, migrationsDir); err != nil {
+		return err
 	}
+	return nil
 }

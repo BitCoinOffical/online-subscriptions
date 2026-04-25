@@ -23,7 +23,7 @@ func NewSubscriptionHandler(service *services.SubscriptionService, logger *zap.L
 // CRUDL
 func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 	var dto dto.SubscriptionDTO
-	if err := c.ShouldBindJSON(dto); err != nil {
+	if err := c.ShouldBindJSON(&dto); err != nil {
 		response.BadRequest(c, err, "invalid request body", h.logger)
 		return
 	}
@@ -64,7 +64,7 @@ func (h *SubscriptionHandler) UpdateSubscriptions(c *gin.Context) {
 	h.logger.Debug("received id", zap.Any("id", id))
 
 	var dto dto.SubscriptionDTO
-	if err := c.ShouldBindJSON(dto); err != nil {
+	if err := c.ShouldBindJSON(&dto); err != nil {
 		response.BadRequest(c, err, "invalid request body", h.logger)
 		return
 	}

@@ -20,7 +20,7 @@ func NewSubscriptionHandler(pool *pgxpool.Pool) *SubscriptionRepo {
 }
 
 func (r *SubscriptionRepo) CreateSubscription(ctx context.Context, sub *models.Subscription) error {
-	query := `INSERT INTO subscriptions (service_name, price, user_id, start_date, end_date, created_at, updated_at ) VALUES ($1, $2, $3, $4, $5)`
+	query := `INSERT INTO subscriptions (service_name, price, user_id, start_date, end_date) VALUES ($1, $2, $3, $4, $5)`
 	_, err := r.pool.Exec(ctx, query, sub.ServiceName, sub.Price, sub.UserID, sub.StartDate, sub.EndDate)
 	if err != nil {
 		return fmt.Errorf("r.pool.Exec: %w", err)
@@ -88,18 +88,18 @@ func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subsc
 }
 func (r *SubscriptionRepo) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-	q := psql.Select("SUM(price)").From("subscriptions")
+	q := psql.Select("COALESCE(SUM(price), 0)").From("subscriptions")
 	if from != "" {
-		q.Where(squirrel.GtOrEq{"start_date": from})
+		q = q.Where(squirrel.GtOrEq{"start_date": from})
 	}
 	if to != "" {
-		q.Where(squirrel.LtOrEq{"end_date": from})
+		q = q.Where(squirrel.LtOrEq{"start_date": to})
 	}
 	if user_id != "" {
-		q.Where(squirrel.Eq{"user_id": user_id})
+		q = q.Where(squirrel.Eq{"user_id": user_id})
 	}
 	if service_name != "" {
-		q.Where(squirrel.Eq{"service_name": service_name})
+		q = q.Where(squirrel.Eq{"service_name": service_name})
 	}
 
 	query, args, err := q.ToSql()

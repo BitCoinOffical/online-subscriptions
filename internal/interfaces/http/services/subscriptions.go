@@ -123,13 +123,23 @@ func (s *SubscriptionService) GetSubscriptionsFilter(ctx context.Context, from, 
 	if err != nil {
 		return 0, err
 	}
-
 	toT, err := date.ParseMonthDate(to)
 	if err != nil {
 		return 0, err
 	}
-	to = toT.Format("02-01-2006")
-	from = fromT.Format("02-01-2006")
+
+	if fromT.IsZero() {
+		from = ""
+	} else {
+		from = fromT.Format("2006-01-02")
+	}
+
+	if toT.IsZero() {
+		to = ""
+	} else {
+		to = toT.Format("2006-01-02")
+	}
+
 	total, err := s.repo.GetSubscriptionsFilter(ctx, from, to, user_id, service_name)
 	if err != nil {
 		return 0, fmt.Errorf("s.repo.GetSubscriptionsFilter: %w", err)

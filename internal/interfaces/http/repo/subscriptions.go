@@ -146,6 +146,7 @@ func (r *SubscriptionRepo) GetSubscriptionsFilter(ctx context.Context, from, to,
 	if err != nil {
 		return 0, fmt.Errorf("q.ToSql():%w", err)
 	}
+	fmt.Println("SQL:", query, "ARGS:", args)
 	var total int
 	err = r.pool.QueryRow(ctx, query, args...).Scan(&total)
 	if err != nil {

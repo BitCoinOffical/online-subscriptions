@@ -4,17 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/dto"
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/models"
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/repo"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain/dto"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain/models"
 	"github.com/BitCoinOffical/online-subscriptions/pkg/date"
 )
 
 type SubscriptionService struct {
-	repo *repo.SubscriptionRepo
+	repo SubscriptionRepo
 }
 
-func NewSubscriptionService(repo *repo.SubscriptionRepo) *SubscriptionService {
+func NewSubscriptionService(repo SubscriptionRepo) *SubscriptionService {
 	return &SubscriptionService{repo: repo}
 }
 

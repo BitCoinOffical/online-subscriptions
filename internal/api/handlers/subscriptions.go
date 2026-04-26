@@ -1,22 +1,23 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/BitCoinOffical/online-subscriptions/internal/api/response"
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/dto"
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/services"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain/dto"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type SubscriptionHandler struct {
-	service *services.SubscriptionService
+	service SubscriptionService
 	logger  *zap.Logger
 }
 
-func NewSubscriptionHandler(service *services.SubscriptionService, logger *zap.Logger) *SubscriptionHandler {
+func NewSubscriptionHandler(service SubscriptionService, logger *zap.Logger) *SubscriptionHandler {
 	return &SubscriptionHandler{service: service, logger: logger}
 }
 
@@ -66,6 +67,10 @@ func (h *SubscriptionHandler) GetSubscriptionsById(c *gin.Context) {
 
 	sub, err := h.service.GetSubscriptionsById(c.Request.Context(), id)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			response.NotFound(c, err, "not found", h.logger)
+			return
+		}
 		response.InternalServerError(c, err, "failed to get subscription by id", h.logger)
 		return
 	}
@@ -99,9 +104,17 @@ func (h *SubscriptionHandler) UpdateSubscriptionsById(c *gin.Context) {
 		response.BadRequest(c, err, "invalid request body", h.logger)
 		return
 	}
+	if dto.IsEmpty() {
+		response.BadRequest(c, domain.ErrEmptyPayload, "empty patch payload", h.logger)
+		return
+	}
 	h.logger.Debug("received data", zap.Any("data", dto))
 
 	if err := h.service.UpdateSubscriptionsById(c.Request.Context(), &dto, id); err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			response.NotFound(c, err, "not found", h.logger)
+			return
+		}
 		response.InternalServerError(c, err, "failed to update subscription by id", h.logger)
 		return
 	}
@@ -137,6 +150,10 @@ func (h *SubscriptionHandler) FullUpdateSubscriptionsById(c *gin.Context) {
 	h.logger.Debug("received data", zap.Any("data", dto))
 
 	if err := h.service.FullUpdateSubscriptionsById(c.Request.Context(), &dto, id); err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			response.NotFound(c, err, "not found", h.logger)
+			return
+		}
 		response.InternalServerError(c, err, "failed to update subscription by id", h.logger)
 		return
 	}
@@ -163,6 +180,10 @@ func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 	h.logger.Debug("received id", zap.Any("id", id))
 
 	if err := h.service.DeleteSubscriptions(c.Request.Context(), id); err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			response.NotFound(c, err, "not found", h.logger)
+			return
+		}
 		response.InternalServerError(c, err, "failed delete subscriptions", h.logger)
 		return
 	}

@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/BitCoinOffical/online-subscriptions/internal/interfaces/http/models"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain"
+	"github.com/BitCoinOffical/online-subscriptions/internal/domain/models"
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -16,7 +17,7 @@ type SubscriptionRepo struct {
 	pool *pgxpool.Pool
 }
 
-func NewSubscriptionHandler(pool *pgxpool.Pool) *SubscriptionRepo {
+func NewSubscription(pool *pgxpool.Pool) *SubscriptionRepo {
 	return &SubscriptionRepo{pool: pool}
 }
 
@@ -35,7 +36,7 @@ func (r *SubscriptionRepo) GetSubscriptionsById(ctx context.Context, id int) (*m
 	err := r.pool.QueryRow(ctx, query, id).Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate, &sub.Created_at, &sub.Updated_at)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("not found subscription by id: %w", err)
+			return nil, fmt.Errorf("subscription not found: %w", domain.ErrNotFound)
 		}
 		return nil, fmt.Errorf("r.pool.QueryRow: %w", err)
 	}
@@ -66,29 +67,37 @@ func (r *SubscriptionRepo) UpdateSubscriptionsById(ctx context.Context, sub *mod
 	if err != nil {
 		return fmt.Errorf("q.ToSql():%w", err)
 	}
-	_, err = r.pool.Exec(ctx, sql, args...)
+	res, err := r.pool.Exec(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("r.pool.Exec: %w", err)
+	}
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("subscription not found: %w", domain.ErrNotFound)
 	}
 	return nil
 }
 
 func (r *SubscriptionRepo) FullUpdateSubscriptionsById(ctx context.Context, sub *models.Subscription) error {
 	query := `UPDATE subscriptions SET service_name = $1, price = $2, user_id = $3, start_date = $4, end_date = $5, updated_at = NOW() WHERE id = $6`
-	_, err := r.pool.Exec(ctx, query, sub.ServiceName, sub.Price, sub.UserID, sub.StartDate, sub.EndDate, sub.ID)
+	res, err := r.pool.Exec(ctx, query, sub.ServiceName, sub.Price, sub.UserID, sub.StartDate, sub.EndDate, sub.ID)
 
 	if err != nil {
 		return fmt.Errorf("pool.Exec: %w", err)
 	}
-
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("subscription not found: %w", domain.ErrNotFound)
+	}
 	return nil
 }
 
 func (r *SubscriptionRepo) DeleteSubscriptions(ctx context.Context, id int) error {
 	query := `DELETE FROM subscriptions WHERE id = $1`
-	_, err := r.pool.Exec(ctx, query, id)
+	res, err := r.pool.Exec(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("delete subscription: %w", err)
+	}
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("subscription not found: %w", domain.ErrNotFound)
 	}
 	return nil
 }

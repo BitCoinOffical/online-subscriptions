@@ -19,3 +19,11 @@ type PatchSubscriptionDTO struct {
 	StartDate   string    `json:"start_date" binding:"omitempty"`
 	EndDate     string    `json:"end_date" binding:"omitempty"`
 }
+
+func (d PatchSubscriptionDTO) IsEmpty() bool {
+	return d.ServiceName == "" &&
+		d.Price == nil &&
+		d.UserID == uuid.Nil &&
+		d.StartDate == "" &&
+		d.EndDate == ""
+}

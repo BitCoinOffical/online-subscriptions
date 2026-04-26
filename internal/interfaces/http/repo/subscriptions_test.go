@@ -49,7 +49,7 @@ func setupTestDB(t *testing.T) *pgxpool.Pool {
 			price INTEGER NOT NULL,
 			user_id UUID NOT NULL,
 			start_date DATE NOT NULL,
-			end_date DATE NOT NULL,
+			end_date DATE,
 
 			created_at TIMESTAMP DEFAULT NOW(),
 			updated_at TIMESTAMP DEFAULT NOW()
@@ -88,13 +88,13 @@ func TestGetSubscriptionsById(t *testing.T) {
 		t.Cleanup(func() {
 			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
 		})
-
+		endDate := time.Now().AddDate(1, 0, 0)
 		sub := &models.Subscription{
 			ServiceName: "Netflix",
 			Price:       100,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		}
 		err := r.CreateSubscription(context.Background(), sub)
 		require.NoError(t, err)
@@ -119,13 +119,13 @@ func TestUpdateSubscriptionsById(t *testing.T) {
 		t.Cleanup(func() {
 			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
 		})
-
+		endDate := time.Now().AddDate(1, 0, 0)
 		sub := &models.Subscription{
 			ServiceName: "Netflix",
 			Price:       100,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		}
 		err := r.CreateSubscription(context.Background(), sub)
 		require.NoError(t, err)
@@ -155,13 +155,13 @@ func TestFullUpdateSubscriptionsById(t *testing.T) {
 		t.Cleanup(func() {
 			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
 		})
-
+		endDate := time.Now().AddDate(1, 0, 0)
 		sub := &models.Subscription{
 			ServiceName: "Netflix",
 			Price:       100,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		}
 		err := r.CreateSubscription(context.Background(), sub)
 		require.NoError(t, err)
@@ -172,19 +172,20 @@ func TestFullUpdateSubscriptionsById(t *testing.T) {
 			Price:       200,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		})
 		assert.NoError(t, err)
 	})
 
 	t.Run("not found", func(t *testing.T) {
+		endDate := time.Now().AddDate(1, 0, 0)
 		err := r.FullUpdateSubscriptionsById(context.Background(), &models.Subscription{
 			ID:          999,
 			ServiceName: "HBO",
 			Price:       200,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		})
 		assert.ErrorIs(t, err, domain.ErrNotFound)
 	})
@@ -198,13 +199,13 @@ func TestDeleteSubscriptions(t *testing.T) {
 		t.Cleanup(func() {
 			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
 		})
-
+		endDate := time.Now().AddDate(1, 0, 0)
 		sub := &models.Subscription{
 			ServiceName: "Netflix",
 			Price:       100,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		}
 		err := r.CreateSubscription(context.Background(), sub)
 		require.NoError(t, err)
@@ -227,13 +228,13 @@ func TestGetSubscriptions(t *testing.T) {
 		t.Cleanup(func() {
 			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
 		})
-
+		endDate := time.Now().AddDate(1, 0, 0)
 		sub := &models.Subscription{
 			ServiceName: "Netflix",
 			Price:       100,
 			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
 			StartDate:   time.Now(),
-			EndDate:     time.Now().AddDate(1, 0, 0),
+			EndDate:     &endDate,
 		}
 		err := r.CreateSubscription(context.Background(), sub)
 		require.NoError(t, err)
@@ -260,12 +261,13 @@ func TestGetSubscriptionsFilter(t *testing.T) {
 	})
 
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+	endDate := time.Now().AddDate(1, 0, 0)
 	sub := &models.Subscription{
 		ServiceName: "Netflix",
 		Price:       100,
 		UserID:      userID,
 		StartDate:   time.Now(),
-		EndDate:     time.Now().AddDate(1, 0, 0),
+		EndDate:     &endDate,
 	}
 	err := r.CreateSubscription(context.Background(), sub)
 	require.NoError(t, err)

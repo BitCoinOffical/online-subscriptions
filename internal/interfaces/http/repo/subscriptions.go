@@ -59,7 +59,7 @@ func (r *SubscriptionRepo) UpdateSubscriptionsById(ctx context.Context, sub *mod
 	if !sub.StartDate.IsZero() {
 		q = q.Set("start_date", sub.StartDate)
 	}
-	if !sub.EndDate.IsZero() {
+	if sub.EndDate != nil && !sub.EndDate.IsZero() {
 		q = q.Set("end_date", sub.EndDate)
 	}
 

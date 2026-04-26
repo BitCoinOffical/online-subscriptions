@@ -9,7 +9,7 @@ type SubscriptionDTO struct {
 	Price       int       `json:"price" binding:"required,gte=0"`
 	UserID      uuid.UUID `json:"user_id" binding:"required"`
 	StartDate   string    `json:"start_date" binding:"required"`
-	EndDate     string    `json:"end_date" binding:"required"`
+	EndDate     string    `json:"end_date" binding:"omitempty"`
 }
 
 type PatchSubscriptionDTO struct {

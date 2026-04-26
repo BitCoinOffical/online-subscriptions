@@ -33,7 +33,7 @@ func (s *SubscriptionService) CreateSubscription(ctx context.Context, dto *dto.S
 		Price:       dto.Price,
 		UserID:      dto.UserID,
 		StartDate:   startT,
-		EndDate:     endT,
+		EndDate:     &endT,
 	}
 	err = s.repo.CreateSubscription(ctx, &sub)
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *SubscriptionService) UpdateSubscriptionsById(ctx context.Context, dto *
 		Price:       dto.Price,
 		UserID:      dto.UserID,
 		StartDate:   startT,
-		EndDate:     endT,
+		EndDate:     &endT,
 	}
 	err = s.repo.UpdateSubscriptionsById(ctx, &sub)
 	if err != nil {
@@ -94,7 +94,7 @@ func (s *SubscriptionService) FullUpdateSubscriptionsById(ctx context.Context, d
 		Price:       dto.Price,
 		UserID:      dto.UserID,
 		StartDate:   startT,
-		EndDate:     endT,
+		EndDate:     &endT,
 	}
 	err = s.repo.FullUpdateSubscriptionsById(ctx, &sub)
 	if err != nil {

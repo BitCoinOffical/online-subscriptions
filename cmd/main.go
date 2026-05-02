@@ -11,6 +11,7 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/config"
 	"github.com/BitCoinOffical/online-subscriptions/internal/adapters/secondary/migrations"
 	"github.com/BitCoinOffical/online-subscriptions/internal/adapters/secondary/postgres"
+	"github.com/BitCoinOffical/online-subscriptions/internal/adapters/secondary/redis"
 	"github.com/BitCoinOffical/online-subscriptions/internal/api"
 	"github.com/BitCoinOffical/online-subscriptions/internal/api/handlers"
 	zaplogger "github.com/BitCoinOffical/online-subscriptions/pkg/logger"
@@ -57,7 +58,13 @@ func main() {
 	}
 	logger.Info("database migrations applied successfully")
 
-	srvs := handlers.NewServices(pool)
+	rdb, err := redis.NewRedis(&cfg.Redis)
+	if err != nil {
+		logger.Fatal("redis failed", zap.Error(err))
+	}
+	logger.Info("redis applied successfully")
+
+	srvs := handlers.NewServices(pool, rdb, cfg.App.Jwt)
 	handlrs := handlers.NewHandlers(srvs, logger)
 	serv := api.NewServer(handlrs, cfg.App.Port)
 	go func() {

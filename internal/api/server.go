@@ -35,6 +35,13 @@ func (s *Server) Run() error {
 	})
 	s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	auth := s.engine.Group("/auth")
+	{
+		auth.POST("/register")
+		auth.POST("/login")
+		auth.GET("/logout")
+	}
+
 	subs := s.engine.Group("/api/v1")
 	{
 		subs.POST("/subscriptions", s.h.Subs.CreateSubscription)             //Create subscription

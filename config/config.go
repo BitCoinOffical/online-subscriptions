@@ -15,6 +15,7 @@ const (
 
 type Config struct {
 	Postgres PostgresConfig
+	Redis    RedisConfig
 	App      AppConfig
 }
 
@@ -26,9 +27,17 @@ type PostgresConfig struct {
 	DBName     string `env:"DB_NAME,required"`
 }
 
+type RedisConfig struct {
+	RDBAddr     string `env:"RDB_ADDR,required"`
+	RDBPort     string `env:"RDB_PORT,required"`
+	RDBPass     string `env:"RDB_PASS,required"`
+	RDBTockenDB int    `env:"RDB_TOCKEN_DB,required"`
+}
+
 type AppConfig struct {
 	Port       string `env:"PORT,required"`
 	DebugLevel string `env:"DEBUG_LEVEL,required"`
+	Jwt        string `env:"JWT_KEY,required"`
 }
 
 func NewLoadConfig() (*Config, error) {
@@ -38,6 +47,9 @@ func NewLoadConfig() (*Config, error) {
 		return nil, err
 	}
 	if err := env.Parse(&cfg.App); err != nil {
+		return nil, err
+	}
+	if err := env.Parse(&cfg.Redis); err != nil {
 		return nil, err
 	}
 

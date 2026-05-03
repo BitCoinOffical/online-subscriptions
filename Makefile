@@ -2,7 +2,7 @@
 run:
 	go run cmd/main.go
 
-build:
+docker-compose:
 	docker compose up --build
 
 test:

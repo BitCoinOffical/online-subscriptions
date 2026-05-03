@@ -1,27 +1,61 @@
 services:
-  app:
-    build: .
+  subs-services:
+    build: ./subscription-service
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - ./subscription-service/.env
     depends_on:
-      postgres:
+      postgres-subs:
+        condition: service_healthy
+
+  auth-services:
+    build: ./auth-service
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      postgres-auth:
         condition: service_healthy
       
-  postgres:
+  postgres-subs:
     image: postgres:18
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     env_file:
-      -  .env
+      -  ./subscription-service/.env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d subsdb"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  postgres-auth:
+    image: postgres:18
+    ports:
+    - "5433:5432"
+    volumes:
+    - postgres_data:/var/lib/postgresql
+    env_file:
+    -  ./auth-service/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d subsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis-auth:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     
+
+
 volumes:
   postgres_data:
+  redis_data:

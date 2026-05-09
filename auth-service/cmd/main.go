@@ -14,6 +14,8 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/adapters/secondary/redis"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/handlers"
+	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/middleware"
+	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	zaplogger "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/logger"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
@@ -57,15 +59,33 @@ func main() {
 	}
 	logger.Info("database migrations applied successfully")
 
-	rdb, err := redis.NewRedis(&cfg.Redis)
+	sessionRDB, err := redis.NewRedis(redis.RedisConfig{
+		RDBAddr: cfg.Redis.RDBSessionAddr,
+		RDBPort: cfg.Redis.RDBSessionPort,
+		RDBDB:   cfg.Redis.RDBSessionDB,
+		RDBPass: cfg.Redis.RDBPass,
+	})
 	if err != nil {
 		logger.Fatal("redis failed", zap.Error(err))
 	}
 	logger.Info("redis applied successfully")
 
-	srvs := handlers.NewServices(pool, rdb, cfg.App.Jwt)
+	rateLimiterRDB, err := redis.NewRedis(redis.RedisConfig{
+		RDBAddr: cfg.Redis.RDBRateAddr,
+		RDBPort: cfg.Redis.RDBRatePort,
+		RDBDB:   cfg.Redis.RDBLimiterDB,
+		RDBPass: cfg.Redis.RDBPass,
+	})
+	if err != nil {
+		logger.Fatal("redis failed", zap.Error(err))
+	}
+	logger.Info("redis applied successfully")
+
+	manager := jwt.NewManagerToken(cfg.App.Jwt)
+	limiter := middleware.NewRateLimiter(rateLimiterRDB, logger)
+	srvs := handlers.NewServices(pool, sessionRDB, cfg.App.Jwt)
 	handlrs := handlers.NewHandlers(srvs, logger)
-	serv := api.NewServer(handlrs, cfg.App.Port)
+	serv := api.NewServer(handlrs, manager, limiter, cfg.App.Port, logger)
 	go func() {
 		if err := serv.Run(); err != nil {
 			log.Fatal(err)
@@ -75,10 +95,10 @@ func main() {
 	<-ctx.Done()
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := migrations.RollbackLast(shutdownCtx, db, migrationsDir); err != nil {
-		log.Fatalf("goose down failed: %v", err)
-	}
-	logger.Info("rollback last migrations")
+	// if err := migrations.RollbackLast(shutdownCtx, db, migrationsDir); err != nil {
+	// 	log.Fatalf("goose down failed: %v", err)
+	// }
+	// logger.Info("rollback last migrations")
 
 	postgres.ClosePool(pool)
 	logger.Info("pool closed")

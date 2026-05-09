@@ -28,10 +28,15 @@ type PostgresConfig struct {
 }
 
 type RedisConfig struct {
-	RDBAddr     string `env:"RDB_ADDR,required"`
-	RDBPort     string `env:"RDB_PORT,required"`
-	RDBPass     string `env:"RDB_PASS,required"`
-	RDBTockenDB int    `env:"RDB_TOCKEN_DB,required"`
+	RDBSessionAddr string `env:"RDB_ADDR,required"`
+	RDBSessionPort string `env:"RDB_PORT,required"`
+	RDBSessionDB   int    `env:"RDB_TOCKEN_DB,required"`
+
+	RDBRateAddr  string `env:"RDB_ADDR,required"`
+	RDBRatePort  string `env:"RDB_PORT,required"`
+	RDBLimiterDB int    `env:"RDB_RATE_LIMITER_DB,required"`
+
+	RDBPass string `env:"RDB_PASS,required"`
 }
 
 type AppConfig struct {

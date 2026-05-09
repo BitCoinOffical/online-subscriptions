@@ -4,15 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/config"
 	"github.com/redis/go-redis/v9"
 )
 
-func NewRedis(cfg *config.RedisConfig) (*redis.Client, error) {
+type RedisConfig struct {
+	RDBAddr string
+	RDBPort string
+	RDBDB   int
+	RDBPass string
+}
+
+func NewRedis(cfg RedisConfig) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", cfg.RDBAddr, cfg.RDBPort),
 		Password: cfg.RDBPass,
-		DB:       cfg.RDBTockenDB,
+		DB:       cfg.RDBDB,
 	})
 
 	if err := client.Ping(context.Background()).Err(); err != nil {

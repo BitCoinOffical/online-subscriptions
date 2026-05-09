@@ -11,8 +11,11 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/config"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/adapters/secondary/migrations"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/adapters/secondary/postgres"
+	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/adapters/secondary/redis"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/api"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/api/handlers"
+	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/api/middleware"
+	"github.com/BitCoinOffical/online-subscriptions/subscription-service/pkg/jwt"
 	zaplogger "github.com/BitCoinOffical/online-subscriptions/subscription-service/pkg/logger"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
@@ -56,9 +59,17 @@ func main() {
 	}
 	logger.Info("database migrations applied successfully")
 
+	rdb, err := redis.NewRedis(&cfg.Redis)
+	if err != nil {
+		logger.Fatal("redis failed", zap.Error(err))
+	}
+
+	manager := jwt.NewManagerToken(cfg.App.Jwt)
+
 	srvs := handlers.NewServices(pool)
 	handlrs := handlers.NewHandlers(srvs, logger)
-	serv := api.NewServer(handlrs, cfg.App.Port)
+	limiter := middleware.NewRateLimiter(rdb, logger)
+	serv := api.NewServer(handlrs, cfg.App.Port, manager, limiter, logger)
 	go func() {
 		if err := serv.Run(); err != nil {
 			log.Fatal(err)

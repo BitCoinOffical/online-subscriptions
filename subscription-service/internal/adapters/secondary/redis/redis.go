@@ -1,0 +1,23 @@
+package redis
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/BitCoinOffical/online-subscriptions/subscription-service/config"
+	"github.com/redis/go-redis/v9"
+)
+
+func NewRedis(cfg *config.RedisConfig) (*redis.Client, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", cfg.RDBAddr, cfg.RDBPort),
+		Password: cfg.RDBPass,
+		DB:       cfg.RDBLimiterDB,
+	})
+
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		return nil, fmt.Errorf("redis ping: %w", err)
+	}
+
+	return client, nil
+}

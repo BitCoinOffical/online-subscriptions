@@ -16,6 +16,7 @@ const (
 type Config struct {
 	Postgres PostgresConfig
 	App      AppConfig
+	Redis    RedisConfig
 }
 
 type PostgresConfig struct {
@@ -25,7 +26,12 @@ type PostgresConfig struct {
 	DBPort     string `env:"DB_PORT,required"`
 	DBName     string `env:"DB_NAME,required"`
 }
-
+type RedisConfig struct {
+	RDBAddr      string `env:"RDB_ADDR,required"`
+	RDBPort      string `env:"RDB_PORT,required"`
+	RDBPass      string `env:"RDB_PASS,required"`
+	RDBLimiterDB int    `env:"RDB_RATE_LIMITER_DB,required"`
+}
 type AppConfig struct {
 	Port       string `env:"PORT,required"`
 	DebugLevel string `env:"DEBUG_LEVEL,required"`
@@ -41,7 +47,9 @@ func NewLoadConfig() (*Config, error) {
 	if err := env.Parse(&cfg.App); err != nil {
 		return nil, err
 	}
-
+	if err := env.Parse(&cfg.Redis); err != nil {
+		return nil, err
+	}
 	var env Env = Env(cfg.App.DebugLevel)
 	if env != EnvProd && env != EnvDev {
 		return nil, fmt.Errorf("incorrect debug level: %s", env)

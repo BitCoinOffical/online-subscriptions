@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Run tests
+        working-directory: ./auth-service
+        run: go test ./...
+
+  test-subscription:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Run tests
+        working-directory: ./subscription-service
+        run: go test ./...
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test-auth, test-subscription]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build auth-service
+        run: docker build -t auth-service ./auth-service
+
+      - name: Build subscription-service
+        run: docker build -t subscription-service ./subscription-service

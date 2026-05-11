@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"context"
+
+	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/dto"
+	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/models"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/cache"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/repo"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/services"
@@ -10,8 +14,15 @@ import (
 	"go.uber.org/zap"
 )
 
+type UserService interface {
+	RegisterUser(ctx context.Context, user dto.UsersRegisterDTO) (*models.Tokens, error)
+	LoginUser(ctx context.Context, user dto.UsersLoginDTO) (*models.Tokens, error)
+	UpdateAccessToken(ctx context.Context, tokens dto.TokensDTO) (*models.Tokens, error)
+	Logout(ctx context.Context, id string) error
+}
+
 type Services struct {
-	userserv *services.UserService
+	userserv UserService
 }
 
 func NewServices(pool *pgxpool.Pool, rdb *redis.Client, key string) *Services {

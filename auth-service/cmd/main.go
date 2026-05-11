@@ -95,13 +95,9 @@ func main() {
 	<-ctx.Done()
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	// if err := migrations.RollbackLast(shutdownCtx, db, migrationsDir); err != nil {
-	// 	log.Fatalf("goose down failed: %v", err)
-	// }
-	// logger.Info("rollback last migrations")
 
 	postgres.ClosePool(pool)
-	logger.Info("pool closed")
+	logger.Info("pool closesd")
 
 	if err := serv.Shutdown(shutdownCtx); err != nil {
 		log.Fatalf("shutdown error: %v", err)

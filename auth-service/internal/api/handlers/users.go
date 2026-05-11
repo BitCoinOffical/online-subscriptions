@@ -7,17 +7,16 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/response"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/dto"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type User struct {
-	usersrvc *services.UserService
+	usersrvc UserService
 	logger   *zap.Logger
 }
 
-func NewUserHandler(usersrvc *services.UserService, logger *zap.Logger) *User {
+func NewUserHandler(usersrvc UserService, logger *zap.Logger) *User {
 	return &User{logger: logger, usersrvc: usersrvc}
 }
 

@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/handlers"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/middleware"
@@ -11,6 +12,10 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
+)
+
+const (
+	HeaderTimeout = 5
 )
 
 type Server struct {
@@ -31,8 +36,9 @@ func NewServer(h *handlers.Handlers, manager *jwt.ManagerToken, limitter *middle
 		limitter: limitter,
 		logger:   logger,
 		srv: &http.Server{
-			Addr:    ":" + port,
-			Handler: engine,
+			Addr:              ":" + port,
+			Handler:           engine,
+			ReadHeaderTimeout: HeaderTimeout * time.Second,
 		},
 	}
 }

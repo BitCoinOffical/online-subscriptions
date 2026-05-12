@@ -1,9 +1,21 @@
-#run
+.PHONY: run docker-up test auth-test sub-test clean
+
+APP_AUTH=./auth-service
+APP_SUB=./subscription-service
+
 run:
 	go run cmd/main.go
 
-docker-compose:
+docker-up:
 	docker compose up --build
 
-test:
-	cd ./auth-service && go clean -testcache && go test ./... && cd ../subscription-service && go clean -testcache && go test ./...
+test: clean auth-test sub-test
+
+auth-test:
+	go -C $(APP_AUTH) test ./... -count=1
+
+sub-test:
+	go -C $(APP_SUB) test ./... -count=1
+
+clean:
+	go clean -testcache

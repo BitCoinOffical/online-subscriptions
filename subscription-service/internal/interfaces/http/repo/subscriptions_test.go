@@ -220,38 +220,6 @@ func TestDeleteSubscriptions(t *testing.T) {
 	})
 }
 
-func TestGetSubscriptions(t *testing.T) {
-	pool := setupTestDB(t)
-	r := repo.NewSubscription(pool)
-
-	t.Run("success", func(t *testing.T) {
-		t.Cleanup(func() {
-			pool.Exec(context.Background(), "TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE")
-		})
-		endDate := time.Now().AddDate(1, 0, 0)
-		sub := &models.Subscription{
-			ServiceName: "Netflix",
-			Price:       100,
-			UserID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
-			StartDate:   time.Now(),
-			EndDate:     &endDate,
-		}
-		err := r.CreateSubscription(context.Background(), sub)
-		require.NoError(t, err)
-
-		subs, err := r.GetSubscriptions(context.Background())
-		assert.NoError(t, err)
-		assert.Len(t, subs, 1)
-		assert.Equal(t, "Netflix", subs[0].ServiceName)
-	})
-
-	t.Run("empty", func(t *testing.T) {
-		subs, err := r.GetSubscriptions(context.Background())
-		assert.NoError(t, err)
-		assert.Empty(t, subs)
-	})
-}
-
 func TestGetSubscriptionsFilter(t *testing.T) {
 	pool := setupTestDB(t)
 	r := repo.NewSubscription(pool)

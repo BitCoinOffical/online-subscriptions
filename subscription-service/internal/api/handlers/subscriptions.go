@@ -199,14 +199,35 @@ func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /subscriptions/ [get]
 func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
-	subs, err := h.service.GetSubscriptions(c.Request.Context())
+	pageStr := c.DefaultQuery("page", "1")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		response.BadRequest(c, err, "invalid page", h.logger)
+		return
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 || limit > 100 {
+		response.BadRequest(c, err, "invalid limit", h.logger)
+		return
+	}
+
+	offset := (page - 1) * limit
+
+	subs, err := h.service.GetSubscriptions(c.Request.Context(), limit, offset)
+
 	if err != nil {
 		response.InternalServerError(c, err, "failed to get subscriptions", h.logger)
 		return
 	}
-	h.logger.Debug("received data from data base", zap.Any("data", subs))
 
-	c.JSON(http.StatusOK, subs)
+	c.JSON(http.StatusOK, gin.H{
+		"page":  page,
+		"limit": limit,
+		"data":  subs,
+	})
 }
 
 // @Summary Calculating the total cost of subscriptions with filtering

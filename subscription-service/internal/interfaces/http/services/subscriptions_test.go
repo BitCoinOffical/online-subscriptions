@@ -394,35 +394,37 @@ func TestGetSubscriptions(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks_services.NewMockSubscriptionRepo(ctrl)
-
-	services := services.NewSubscriptionService(mockRepo)
+	service := services.NewSubscriptionService(mockRepo)
 
 	testCases := []struct {
 		name    string
-		id      int
 		setup   func(mockRepo *mocks_services.MockSubscriptionRepo)
 		want    []models.Subscription
 		wantErr bool
 	}{
 		{
 			name: "success",
-			id:   1,
 			setup: func(mockRepo *mocks_services.MockSubscriptionRepo) {
-				mockRepo.EXPECT().GetSubscriptions(gomock.Any()).Return([]models.Subscription{
-					{
-						ID:          1,
-						ServiceName: "Netflix",
-					},
-				}, nil)
+				mockRepo.EXPECT().
+					GetSubscriptions(gomock.Any(), 10, 0).
+					Return([]models.Subscription{
+						{
+							ID:          1,
+							ServiceName: "Netflix",
+						},
+					}, nil)
 			},
-			want:    []models.Subscription{{ID: 1, ServiceName: "Netflix"}},
+			want: []models.Subscription{
+				{ID: 1, ServiceName: "Netflix"},
+			},
 			wantErr: false,
 		},
 		{
 			name: "repo error",
-			id:   99,
 			setup: func(mockRepo *mocks_services.MockSubscriptionRepo) {
-				mockRepo.EXPECT().GetSubscriptions(gomock.Any()).Return(nil, domain.ErrNotFound)
+				mockRepo.EXPECT().
+					GetSubscriptions(gomock.Any(), 10, 0).
+					Return(nil, domain.ErrNotFound)
 			},
 			want:    nil,
 			wantErr: true,
@@ -433,14 +435,14 @@ func TestGetSubscriptions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup(mockRepo)
 
-			models, err := services.GetSubscriptions(context.Background())
+			got, err := service.GetSubscriptions(context.Background(), 10, 0)
 
 			if tc.wantErr {
 				assert.Error(t, err)
-				assert.Nil(t, models)
+				assert.Nil(t, got)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.want, models)
+				assert.Equal(t, tc.want, got)
 			}
 		})
 	}

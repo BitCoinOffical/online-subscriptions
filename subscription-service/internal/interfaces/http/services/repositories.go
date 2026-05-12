@@ -12,7 +12,7 @@ type SubscriptionRepo interface {
 	UpdateSubscriptionsById(ctx context.Context, sub *models.PatchSubscription) error
 	FullUpdateSubscriptionsById(ctx context.Context, sub *models.Subscription) error
 	DeleteSubscriptions(ctx context.Context, id int) error
-	GetSubscriptions(ctx context.Context) ([]models.Subscription, error)
+	GetSubscriptions(ctx context.Context, limit int, offset int) ([]models.Subscription, error)
 	GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error)
 }
 

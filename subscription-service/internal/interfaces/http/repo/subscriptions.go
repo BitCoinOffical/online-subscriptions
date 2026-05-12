@@ -102,9 +102,16 @@ func (r *SubscriptionRepo) DeleteSubscriptions(ctx context.Context, id int) erro
 	return nil
 }
 
-func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subscription, error) {
-	query := `SELECT * FROM subscriptions ORDER BY id DESC`
-	rows, err := r.pool.Query(ctx, query)
+func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context, limit int, offset int) ([]models.Subscription, error) {
+
+	query := `
+		SELECT *
+		FROM subscriptions
+		ORDER BY id DESC
+		LIMIT $1 OFFSET $2
+	`
+
+	rows, err := r.pool.Query(ctx, query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("r.pool.Query: %w", err)
 	}
@@ -114,14 +121,25 @@ func (r *SubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subsc
 
 	for rows.Next() {
 		var sub models.Subscription
-		if err := rows.Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate, &sub.Created_at, &sub.Updated_at); err != nil {
+
+		if err := rows.Scan(
+			&sub.ID,
+			&sub.ServiceName,
+			&sub.Price,
+			&sub.UserID,
+			&sub.StartDate,
+			&sub.EndDate,
+			&sub.Created_at,
+			&sub.Updated_at,
+		); err != nil {
 			return nil, fmt.Errorf("rows.Scan: %w", err)
 		}
+
 		subs = append(subs, sub)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows error: %w", err)
+		return nil, fmt.Errorf("rows.Err: %w", err)
 	}
 
 	return subs, nil

@@ -111,11 +111,12 @@ func (s *SubscriptionService) DeleteSubscriptions(ctx context.Context, id int) e
 	return nil
 }
 
-func (s *SubscriptionService) GetSubscriptions(ctx context.Context) ([]models.Subscription, error) {
-	subs, err := s.repo.GetSubscriptions(ctx)
+func (s *SubscriptionService) GetSubscriptions(ctx context.Context, limit int, offset int) ([]models.Subscription, error) {
+	subs, err := s.repo.GetSubscriptions(ctx, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("s.repo.GetSubscriptions: %w", err)
 	}
+
 	return subs, nil
 }
 func (s *SubscriptionService) GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error) {

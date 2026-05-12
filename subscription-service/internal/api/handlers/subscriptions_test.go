@@ -14,6 +14,7 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/domain/models"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 )
@@ -397,43 +398,51 @@ func TestDeleteSubscriptions(t *testing.T) {
 func TestGetSubscriptions(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockSvc := mocks.NewMockSubscriptionService(ctrl)
 
+	mockSvc := mocks.NewMockSubscriptionService(ctrl)
 	handler := handlers.NewSubscriptionHandler(mockSvc, zap.NewNop())
 
 	router := gin.New()
-	router.GET("/api/v1/subscriptions/", handler.GetSubscriptions)
+	router.GET("/api/v1/subscriptions", handler.GetSubscriptions)
 
 	testCases := []struct {
 		name       string
 		url        string
+		setup      func()
 		wantStatus int
 	}{
 		{
-			name:       "success",
-			url:        "/api/v1/subscriptions/",
+			name: "success",
+			url:  "/api/v1/subscriptions?page=1&limit=10",
+			setup: func() {
+				mockSvc.EXPECT().
+					GetSubscriptions(gomock.Any(), 10, 0).
+					Return([]models.Subscription{}, nil)
+			},
 			wantStatus: http.StatusOK,
 		},
 		{
-			name:       "internal server error",
-			url:        "/api/v1/subscriptions/",
+			name: "internal server error",
+			url:  "/api/v1/subscriptions?page=1&limit=10",
+			setup: func() {
+				mockSvc.EXPECT().
+					GetSubscriptions(gomock.Any(), 10, 0).
+					Return(nil, errors.New("db error"))
+			},
 			wantStatus: http.StatusInternalServerError,
 		},
 	}
+
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			switch tc.wantStatus {
-			case http.StatusOK:
-				mockSvc.EXPECT().GetSubscriptions(gomock.Any()).Return([]models.Subscription{}, nil)
-			case http.StatusInternalServerError:
-				mockSvc.EXPECT().GetSubscriptions(gomock.Any()).Return(nil, errors.New("db error"))
-			}
+			tc.setup()
 
 			req, err := http.NewRequest(http.MethodGet, tc.url, nil)
+			require.NoError(t, err)
+
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
-			assert.NoError(t, err)
 			assert.Equal(t, tc.wantStatus, w.Code)
 		})
 	}

@@ -17,7 +17,7 @@ type SubscriptionService interface {
 	UpdateSubscriptionsById(ctx context.Context, dto *dto.PatchSubscriptionDTO, id int) error
 	FullUpdateSubscriptionsById(ctx context.Context, dto *dto.SubscriptionDTO, id int) error
 	DeleteSubscriptions(ctx context.Context, id int) error
-	GetSubscriptions(ctx context.Context) ([]models.Subscription, error)
+	GetSubscriptions(ctx context.Context, limit int, offset int) ([]models.Subscription, error)
 	GetSubscriptionsFilter(ctx context.Context, from, to, user_id, service_name string) (int, error)
 }
 

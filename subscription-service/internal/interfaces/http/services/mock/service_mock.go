@@ -84,18 +84,18 @@ func (mr *MockSubscriptionRepoMockRecorder) FullUpdateSubscriptionsById(ctx, sub
 }
 
 // GetSubscriptions mocks base method.
-func (m *MockSubscriptionRepo) GetSubscriptions(ctx context.Context) ([]models.Subscription, error) {
+func (m *MockSubscriptionRepo) GetSubscriptions(ctx context.Context, limit, offset int) ([]models.Subscription, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSubscriptions", ctx)
+	ret := m.ctrl.Call(m, "GetSubscriptions", ctx, limit, offset)
 	ret0, _ := ret[0].([]models.Subscription)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetSubscriptions indicates an expected call of GetSubscriptions.
-func (mr *MockSubscriptionRepoMockRecorder) GetSubscriptions(ctx any) *gomock.Call {
+func (mr *MockSubscriptionRepoMockRecorder) GetSubscriptions(ctx, limit, offset any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptions", reflect.TypeOf((*MockSubscriptionRepo)(nil).GetSubscriptions), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptions", reflect.TypeOf((*MockSubscriptionRepo)(nil).GetSubscriptions), ctx, limit, offset)
 }
 
 // GetSubscriptionsById mocks base method.

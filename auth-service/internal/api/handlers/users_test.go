@@ -63,8 +63,8 @@ func TestRegisterUser_Success(t *testing.T) {
 
 	input := dto.UsersRegisterDTO{
 		Email:          "test@example.com",
-		Password:       "secret",
-		Password_retry: "secret",
+		Password:       "secret123",
+		Password_retry: "secret123",
 	}
 	want := &models.Tokens{AccessToken: "access", RefreshToken: "refresh"}
 
@@ -114,8 +114,8 @@ func TestRegisterUser_EmailAlreadyExists(t *testing.T) {
 
 	input := dto.UsersRegisterDTO{
 		Email:          "taken@example.com",
-		Password:       "secret",
-		Password_retry: "secret",
+		Password:       "secret123",
+		Password_retry: "secret123",
 	}
 
 	svc.EXPECT().
@@ -133,8 +133,8 @@ func TestRegisterUser_InternalError(t *testing.T) {
 
 	input := dto.UsersRegisterDTO{
 		Email:          "test@example.com",
-		Password:       "secret",
-		Password_retry: "secret",
+		Password:       "secret123",
+		Password_retry: "secret123",
 	}
 
 	svc.EXPECT().
@@ -150,7 +150,7 @@ func TestLoginUser_Success(t *testing.T) {
 	h, svc, ctrl := newTestHandler(t)
 	defer ctrl.Finish()
 
-	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "secret"}
+	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "secret123"}
 	want := &models.Tokens{AccessToken: "access", RefreshToken: "refresh"}
 
 	svc.EXPECT().
@@ -182,7 +182,7 @@ func TestLoginUser_InvalidCredentials(t *testing.T) {
 	h, svc, ctrl := newTestHandler(t)
 	defer ctrl.Finish()
 
-	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "wrong"}
+	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "wrong123"}
 
 	svc.EXPECT().
 		LoginUser(gomock.Any(), input).
@@ -197,7 +197,7 @@ func TestLoginUser_NotFound(t *testing.T) {
 	h, svc, ctrl := newTestHandler(t)
 	defer ctrl.Finish()
 
-	input := dto.UsersLoginDTO{Email: "ghost@example.com", Password: "secret"}
+	input := dto.UsersLoginDTO{Email: "ghost@example.com", Password: "secret123"}
 
 	svc.EXPECT().
 		LoginUser(gomock.Any(), input).
@@ -212,7 +212,7 @@ func TestLoginUser_InternalError(t *testing.T) {
 	h, svc, ctrl := newTestHandler(t)
 	defer ctrl.Finish()
 
-	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "secret"}
+	input := dto.UsersLoginDTO{Email: "test@example.com", Password: "secret123"}
 
 	svc.EXPECT().
 		LoginUser(gomock.Any(), input).

@@ -144,7 +144,6 @@ func TestDeleteRefreshToken_NonExistentKey(t *testing.T) {
 	client := setupTestRedis(t)
 	c := cache.NewCache(client)
 
-	// Redis не возвращает ошибку при DEL несуществующего ключа — это нормальное поведение
 	err := c.DeleteRefreshToken(context.Background(), uuid.New())
 
 	assert.NoError(t, err)

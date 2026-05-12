@@ -1,0 +1,176 @@
+basePath: /auth
+definitions:
+  dto.TokensDTO:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.UsersLoginDTO:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.UsersRegisterDTO:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      password_retry:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    - password_retry
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API server for user authentication and authorization
+  termsOfService: http://swagger.io/terms/
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: User login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UsersLoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in, returns access and refresh tokens
+          schema:
+            $ref: '#/definitions/dto.TokensDTO'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /logout:
+    delete:
+      description: Invalidate user session and tokens
+      responses:
+        "204":
+          description: Successfully logged out
+        "401":
+          description: Unauthorized - invalid or missing token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - auth
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TokensDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully refreshed, returns new access and refresh tokens
+          schema:
+            $ref: '#/definitions/dto.TokensDTO'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: User registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UsersRegisterDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered, returns access and refresh tokens
+          schema:
+            $ref: '#/definitions/dto.TokensDTO'
+        "400":
+          description: Invalid request body or password mismatch
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

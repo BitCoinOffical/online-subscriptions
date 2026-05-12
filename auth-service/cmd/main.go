@@ -15,7 +15,8 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/handlers"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/middleware"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
+
+	jwtpkg "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	zaplogger "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/logger"
 	"github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
@@ -81,7 +82,7 @@ func main() {
 	}
 	logger.Info("redis applied successfully")
 
-	manager := jwt.NewManagerToken(cfg.App.Jwt)
+	manager := jwtpkg.NewManagerToken(cfg.App.Jwt)
 	limiter := middleware.NewRateLimiter(rateLimiterRDB, logger)
 	srvs := handlers.NewServices(pool, sessionRDB, cfg.App.Jwt)
 	handlrs := handlers.NewHandlers(srvs, logger)

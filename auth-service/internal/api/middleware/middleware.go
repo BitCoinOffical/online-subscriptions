@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/response"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
+	jwtpkg "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -44,7 +44,7 @@ func (r *RateLimiter) RateLimiter() gin.HandlerFunc {
 	}))
 
 }
-func AuthMiddleware(jwtManager *jwt.ManagerToken, logger *zap.Logger) gin.HandlerFunc {
+func AuthMiddleware(jwtManager *jwtpkg.ManagerToken, logger *zap.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {

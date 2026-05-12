@@ -15,6 +15,7 @@ import (
 	time "time"
 
 	models "github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/models"
+	jwtpkg "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -138,4 +139,58 @@ func (m *MockCache) SaveToken(ctx context.Context, id uuid.UUID, value string, R
 func (mr *MockCacheMockRecorder) SaveToken(ctx, id, value, RefreshTTL any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveToken", reflect.TypeOf((*MockCache)(nil).SaveToken), ctx, id, value, RefreshTTL)
+}
+
+// MockManagerToken is a mock of ManagerToken interface.
+type MockManagerToken struct {
+	ctrl     *gomock.Controller
+	recorder *MockManagerTokenMockRecorder
+	isgomock struct{}
+}
+
+// MockManagerTokenMockRecorder is the mock recorder for MockManagerToken.
+type MockManagerTokenMockRecorder struct {
+	mock *MockManagerToken
+}
+
+// NewMockManagerToken creates a new mock instance.
+func NewMockManagerToken(ctrl *gomock.Controller) *MockManagerToken {
+	mock := &MockManagerToken{ctrl: ctrl}
+	mock.recorder = &MockManagerTokenMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockManagerToken) EXPECT() *MockManagerTokenMockRecorder {
+	return m.recorder
+}
+
+// GenerateToken mocks base method.
+func (m *MockManagerToken) GenerateToken(userId uuid.UUID, ttl time.Duration) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateToken", userId, ttl)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateToken indicates an expected call of GenerateToken.
+func (mr *MockManagerTokenMockRecorder) GenerateToken(userId, ttl any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockManagerToken)(nil).GenerateToken), userId, ttl)
+}
+
+// ParseToken mocks base method.
+func (m *MockManagerToken) ParseToken(tokenStr string) (*jwtpkg.Claims, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseToken", tokenStr)
+	ret0, _ := ret[0].(*jwtpkg.Claims)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ParseToken indicates an expected call of ParseToken.
+func (mr *MockManagerTokenMockRecorder) ParseToken(tokenStr any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockManagerToken)(nil).ParseToken), tokenStr)
 }

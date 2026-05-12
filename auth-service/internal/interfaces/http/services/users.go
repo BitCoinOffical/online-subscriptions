@@ -8,7 +8,6 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/dto"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/domain/models"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,11 +19,11 @@ const (
 
 type UserService struct {
 	userRepo UserRepo
-	tokens   *jwt.ManagerToken
+	tokens   ManagerToken
 	session  Cache
 }
 
-func NewUserService(userRepo UserRepo, tokens *jwt.ManagerToken, session Cache) *UserService {
+func NewUserService(userRepo UserRepo, tokens ManagerToken, session Cache) *UserService {
 	return &UserService{userRepo: userRepo, tokens: tokens, session: session}
 }
 

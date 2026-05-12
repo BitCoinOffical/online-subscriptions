@@ -8,7 +8,7 @@ import (
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/cache"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/repo"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/interfaces/http/services"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
+	jwtpkg "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
@@ -26,7 +26,7 @@ type Services struct {
 }
 
 func NewServices(pool *pgxpool.Pool, rdb *redis.Client, key string) *Services {
-	tokens := jwt.NewManagerToken(key)
+	tokens := jwtpkg.NewManagerToken(key)
 	userrepo := repo.NewUserRepo(pool)
 	session := cache.NewCache(rdb)
 	userserv := services.NewUserService(userrepo, tokens, session)

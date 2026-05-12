@@ -7,7 +7,7 @@ import (
 
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/handlers"
 	"github.com/BitCoinOffical/online-subscriptions/auth-service/internal/api/middleware"
-	"github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
+	jwtpkg "github.com/BitCoinOffical/online-subscriptions/auth-service/pkg/jwt"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -22,12 +22,12 @@ type Server struct {
 	engine   *gin.Engine
 	h        *handlers.Handlers
 	srv      *http.Server
-	manager  *jwt.ManagerToken
+	manager  *jwtpkg.ManagerToken
 	logger   *zap.Logger
 	limitter *middleware.RateLimiter
 }
 
-func NewServer(h *handlers.Handlers, manager *jwt.ManagerToken, limitter *middleware.RateLimiter, port string, logger *zap.Logger) *Server {
+func NewServer(h *handlers.Handlers, manager *jwtpkg.ManagerToken, limitter *middleware.RateLimiter, port string, logger *zap.Logger) *Server {
 	engine := gin.New()
 	return &Server{
 		h:        h,

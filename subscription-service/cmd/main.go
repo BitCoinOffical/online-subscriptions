@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/BitCoinOffical/online-subscriptions/subscription-service/docs"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/config"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/adapters/secondary/migrations"
 	"github.com/BitCoinOffical/online-subscriptions/subscription-service/internal/adapters/secondary/postgres"
@@ -25,12 +26,24 @@ const (
 	migrationsDir = "./migrations"
 )
 
-// @title Subscriptions API
+// @title Subscription Service API
 // @version 1.0
-// @description API server for subscriptions
+// @description API server for managing user subscriptions
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email support@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
 
 // @host localhost:8080
 // @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

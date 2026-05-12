@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// ErrorResponse represents API error response
 type ErrorResponse struct {
 	Error string `json:"error"`
 }

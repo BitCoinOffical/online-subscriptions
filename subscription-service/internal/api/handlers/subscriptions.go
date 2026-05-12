@@ -22,14 +22,16 @@ func NewSubscriptionHandler(service SubscriptionService, logger *zap.Logger) *Su
 }
 
 // @Summary Create subscription
+// @Description Creates a new subscription for a user
 // @Tags subscriptions
-// @Description Creates a subscription
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param request body dto.SubscriptionDTO true "Subscription data"
-// @Success 201 {string} string "Created"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Success 201 "Successfully created"
+// @Failure 400 {object} response.ErrorResponse "Invalid request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions [post]
 func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 	var dto dto.SubscriptionDTO
@@ -48,14 +50,16 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 }
 
 // @Summary Get subscription by ID
+// @Description Retrieve a specific subscription by its ID
 // @Tags subscriptions
-// @Description Get subscription by ID
-// @Param id path int true "Subscription ID"
 // @Produce json
-// @Success 200 {object} models.Subscription
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Security BearerAuth
+// @Param id path int true "Subscription ID"
+// @Success 200 {object} models.Subscription "Subscription details"
+// @Failure 400 {object} response.ErrorResponse "Invalid subscription ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 404 {object} response.ErrorResponse "Subscription not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [get]
 func (h *SubscriptionHandler) GetSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -80,16 +84,18 @@ func (h *SubscriptionHandler) GetSubscriptionsById(c *gin.Context) {
 }
 
 // @Summary Partially update subscription
+// @Description Update specific fields of a subscription by ID
 // @Tags subscriptions
-// @Description Partially update subscription by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Subscription ID"
-// @Param request body dto.SubscriptionDTO true "Fields to update"
-// @Success 200 {string} string "Updated"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Param request body dto.PatchSubscriptionDTO true "Fields to update"
+// @Success 200 "Successfully updated"
+// @Failure 400 {object} response.ErrorResponse "Invalid subscription ID or empty payload"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 404 {object} response.ErrorResponse "Subscription not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [patch]
 func (h *SubscriptionHandler) UpdateSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -122,17 +128,19 @@ func (h *SubscriptionHandler) UpdateSubscriptionsById(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// @Summary Update subscription
+// @Summary Full update subscription
+// @Description Replace all fields of a subscription by ID
 // @Tags subscriptions
-// @Description Update subscription by ID
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param id path int true "Subscription ID"
-// @Param request body dto.SubscriptionDTO true "Updated subscription data"
-// @Success 200 {string} string "Updated"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Param request body dto.SubscriptionDTO true "Complete subscription data"
+// @Success 200 "Successfully updated"
+// @Failure 400 {object} response.ErrorResponse "Invalid subscription ID or request body"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 404 {object} response.ErrorResponse "Subscription not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [put]
 func (h *SubscriptionHandler) FullUpdateSubscriptionsById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -163,13 +171,15 @@ func (h *SubscriptionHandler) FullUpdateSubscriptionsById(c *gin.Context) {
 }
 
 // @Summary Delete subscription
+// @Description Delete a subscription by ID
 // @Tags subscriptions
-// @Description Delete subscription by ID
+// @Security BearerAuth
 // @Param id path int true "Subscription ID"
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Success 204 "Successfully deleted"
+// @Failure 400 {object} response.ErrorResponse "Invalid subscription ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 404 {object} response.ErrorResponse "Subscription not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [delete]
 func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -191,12 +201,17 @@ func (h *SubscriptionHandler) DeleteSubscriptions(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// @Summary Get all subscriptions
+// @Summary Get all subscriptions with pagination
+// @Description Retrieve all subscriptions with pagination support
 // @Tags subscriptions
-// @Description Get all subscriptions
 // @Produce json
-// @Success 200 {array} models.Subscription
-// @Failure 500 {object} response.ErrorResponse
+// @Security BearerAuth
+// @Param page query int false "Page number (default: 1)"
+// @Param limit query int false "Items per page (default: 10, max: 100)"
+// @Success 200 {object} map[string]interface{} "Returns page, limit, and data array"
+// @Failure 400 {object} response.ErrorResponse "Invalid page or limit parameter"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions/ [get]
 func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
@@ -230,17 +245,19 @@ func (h *SubscriptionHandler) GetSubscriptions(c *gin.Context) {
 	})
 }
 
-// @Summary Calculating the total cost of subscriptions with filtering
+// @Summary Calculate total cost of subscriptions with filters
+// @Description Calculate the total cost of subscriptions with optional filtering by user, service, and date range
 // @Tags subscriptions
-// @Description Calculating the total cost of subscriptions with filtering
+// @Produce json
+// @Security BearerAuth
 // @Param user_id query string false "User UUID"
 // @Param service_name query string false "Subscription service name"
-// @Param from query string false "Start period (MM-YYYY) or (DD-MM-YYYY)"
-// @Param to query string false "End period (MM-YYYY) or (DD-MM-YYYY)"
-// @Produce json
-// @Success 200 {integer} integer
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
+// @Param from query string false "Start period (MM-YYYY or DD-MM-YYYY)"
+// @Param to query string false "End period (MM-YYYY or DD-MM-YYYY)"
+// @Success 200 {integer} int "Total cost of filtered subscriptions"
+// @Failure 400 {object} response.ErrorResponse "Invalid query parameters"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized - invalid or missing token"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /subscriptions [get]
 func (h *SubscriptionHandler) GetSubscriptionsFilter(c *gin.Context) {
 	user_id := c.Query("user_id")

@@ -7,8 +7,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// ErrorResponse represents API error response
 type ErrorResponse struct {
-	Error string `json:"error"`
+	Error string `json:"error" example:"error message"`
 }
 
 func InternalServerError(c *gin.Context, err error, msg string, logger *zap.Logger) {
